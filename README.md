@@ -242,3 +242,56 @@ fully predict pathway-level transcriptional specificity. Pathway crosstalk
 and shared downstream targets mean a compound's transcriptional footprint
 is broader than its binding profile alone would suggest — a limitation of
 any binding-based selectivity framework, regardless of which definition is used.
+
+## Binding affinity vs transcriptional change
+
+**Script:** `analysis/binding_vs_transcription.py`  
+**Data:** Klaeger et al. chemoproteomic dataset (343 kinases) + DESeq2 results
+
+This analysis directly connects the companion kinase selectivity paper to the
+RNA-seq results. For each of the 343 kinases in imatinib's binding profile
+(Klaeger dataset), we asked: does binding affinity predict transcriptional
+change in imatinib-treated K562 cells?
+
+### Result
+
+**Pearson r = -0.077, p = 0.19** — binding affinity does not predict
+transcriptional change at the kinase gene level.
+
+### Key observations
+
+| Kinase | pKd | log2FC | Significant | Interpretation |
+|--------|-----|--------|-------------|----------------|
+| BCR | 8.19 | -0.19 | Yes | Strongest binder, minimal expression change |
+| GRB2 | 7.79 | -0.29 | Yes | Strong binder, small change |
+| NQO2 | 7.39 | -1.99 | Yes | Strong binder, large downregulation |
+| ABL1 | 6.97 | -0.04 | No | Primary oncogenic target, unchanged expression |
+| PAK6 | 5.00 | +1.71 | Yes | Weak binder, large upregulation |
+| KIT | 5.00 | -0.02 | No | Known off-target, unchanged |
+
+Of 343 imatinib targets, 294 were detected in the RNA-seq data.
+177 were significantly differentially expressed (padj < 0.05), but their
+direction and magnitude of change was not predicted by binding affinity.
+
+### Interpretation
+
+This result is expected and biologically meaningful. Kinase inhibitors work
+post-translationally — imatinib binds to the ABL1 *protein* and blocks its
+kinase activity. This does not directly change ABL1 *gene expression*. The
+transcriptional changes we observe are downstream consequences of kinase
+inhibition, mediated through signaling cascades, transcription factor activity,
+and gene regulatory networks — not direct effects on target gene expression.
+
+This finding clarifies what binding-based selectivity metrics measure: the
+affinity and breadth of protein-level target engagement. They do not, and
+cannot, directly predict transcriptional specificity. A compound ranked as
+highly selective by S-score, entropy, Gini, or ratio-based definitions is
+selective at the binding level — but its transcriptional footprint depends
+on the downstream signaling architecture of the cell, which is not captured
+by any binding-based selectivity definition.
+
+This is a substantive extension of the companion selectivity paper's argument:
+the definitional instability we identified in binding-based selectivity metrics
+reflects a deeper issue — binding selectivity and transcriptional specificity
+are related but distinct biological concepts that require different measurement
+frameworks.
