@@ -1,2 +1,140 @@
 # Bulk RNA-seq Pipeline: Kinase Inhibitor Treatment Response
-# rnaseq-pipeline
+
+Transcriptional response of K562 CML cells to imatinib treatment, analyzed
+using nf-core/rnaseq on Google Cloud Platform and DESeq2.
+
+## Biological question
+
+How does imatinib — a BCR-ABL kinase inhibitor — reshape the transcriptome
+of K562 chronic myeloid leukemia cells? Which pathways are activated or
+suppressed, and are the transcriptional changes consistent with imatinib's
+known kinase binding selectivity profile?
+
+This project connects to a companion study on kinase inhibitor selectivity
+definitions (ChemRxiv: https://doi.org/10.26434/chemrxiv.15001618/v1), which
+characterizes imatinib's binding profile across 343 kinases using the Klaeger
+chemoproteomic dataset.
+
+## Dataset
+
+**GEO accession:** SRP528723  
+**Cell line:** K562 (human CML, BCR-ABL+)  
+**Treatment:** Imatinib (1 µM) vs. DMSO control  
+**Replicates:** 3 per condition  
+**Sequencing:** Paired-end, Illumina NovaSeq 6000, ~21M read pairs/sample
+
+| Sample | SRR accession |
+|--------|--------------|
+| control_rep1 | SRR30403510 |
+| control_rep2 | SRR30403509 |
+| control_rep3 | SRR30403508 |
+| imatinib_rep1 | SRR30403504 |
+| imatinib_rep2 | SRR30403503 |
+| imatinib_rep3 | SRR30403502 |
+
+## Pipeline
+
+**Workflow:** nf-core/rnaseq v3.24.0  
+**Executor:** Google Cloud Batch (us-central1)  
+**Reference genome:** GRCh38 (iGenomes)  
+**Quantification:** Salmon (pseudo-alignment, --skip_alignment)
+
+### Key pipeline steps
+- FastQC — raw read quality control
+- TrimGalore — adapter trimming
+- Salmon — transcript quantification
+- tximeta/tximport — count aggregation
+- MultiQC — QC report aggregation
+
+### Infrastructure
+- Google Cloud Storage bucket for FASTQs, work directory, and results
+- Google Batch for job execution
+- Nextflow v25.10.4 for workflow orchestration
+
+## Differential expression analysis
+
+**Script:** `analysis/deseq2_analysis.R`  
+**Tool:** DESeq2  
+**Comparison:** imatinib vs. control  
+**Significance threshold:** padj < 0.05, |log2FC| > 1
+
+### Results summary
+- Genes tested: 13,480 (after low-count filtering)
+- Significant DEGs: 8,319
+- Upregulated: 1,527
+- Downregulated: 991
+
+### Known imatinib response genes
+
+| Gene | log2FC | padj | Interpretation |
+|------|--------|------|----------------|
+| HBZ | +2.99 | 9e-96 | Erythroid differentiation ↑ |
+| ALAS2 | +3.46 | 5e-35 | Erythroid differentiation ↑ |
+| HBG2 | +1.52 | 5e-35 | Erythroid differentiation ↑ |
+| HBG1 | +1.39 | 2e-29 | Erythroid differentiation ↑ |
+| BCL2 | -1.62 | 2e-09 | Pro-survival suppressed |
+| MYC | -1.51 | 3e-08 | Proliferation suppressed |
+| CCND1 | -2.33 | 4e-05 | Cell cycle arrest |
+
+Results are consistent with BCR-ABL inhibition driving K562 cells toward
+erythroid differentiation and away from proliferation.
+
+## Outputs
+
+| File | Description |
+|------|-------------|
+| `analysis/deseq2_results.csv` | Full DESeq2 results table |
+| `analysis/known_gene_results.csv` | Known imatinib response genes |
+| `analysis/pca.png` | PCA plot |
+| `analysis/volcano.png` | Volcano plot |
+| `analysis/heatmap_top50.png` | Heatmap of top 50 DEGs |
+
+## Reproduction
+
+### Requirements
+- Nextflow >= 25.0
+- Google Cloud SDK
+- R >= 4.0 with DESeq2, ggplot2, pheatmap, readr, dplyr, tibble
+
+### GCP setup
+```bash
+gcloud auth login
+gcloud config set project YOUR_PROJECT_ID
+gsutil mb -l us-central1 gs://YOUR_BUCKET
+```
+
+### Run pipeline
+```bash
+export GOOGLE_APPLICATION_CREDENTIALS=~/nextflow-sa-key.json
+
+nextflow run nf-core/rnaseq \
+  -profile googlebatch \
+  -c custom.config \
+  --input gs://YOUR_BUCKET/samplesheet.csv \
+  --outdir gs://YOUR_BUCKET/results \
+  --genome GRCh38 \
+  --skip_linting \
+  --skip_alignment \
+  --pseudo_aligner salmon \
+  --project_id YOUR_PROJECT_ID \
+  --workdir_bucket gs://YOUR_BUCKET/work \
+  --workers_service_account YOUR_SA@YOUR_PROJECT.iam.gserviceaccount.com \
+  --use_spot false \
+  --boot_disk "50 GB" \
+  -queue-size 2
+```
+
+### Run DESeq2 analysis
+```bash
+Rscript analysis/deseq2_analysis.R
+```
+
+## Next steps
+
+- Kinase activity inference using PROGENy
+- Pathway enrichment analysis (fgsea)
+- Cross-reference inferred kinase activities with imatinib binding profile
+  from the Klaeger dataset
+- Comparison with dasatinib transcriptional response (broader selectivity
+  profile, predicted broader transcriptional footprint)
+
