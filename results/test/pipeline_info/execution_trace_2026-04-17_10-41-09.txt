@@ -1,0 +1,3 @@
+task_id	hash	native_id	name	status	exit	submit	duration	realtime	%cpu	peak_rss	peak_vmem	rchar	wchar
+1	34/8a0048	52765	NFCORE_RNASEQ:PREPARE_GENOME:GUNZIP_GTF (genes_with_empty_tid.gtf.gz)	FAILED	127	2026-04-17 10:41:43.014	116ms	105ms	-	-	-	-	-
+2	df/cf2e0f	52744	NFCORE_RNASEQ:PREPARE_GENOME:GUNZIP_ADDITIONAL_FASTA (gfp.fa.gz)	FAILED	127	2026-04-17 10:41:42.894	231ms	199ms	-	-	-	-	-

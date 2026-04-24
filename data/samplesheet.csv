@@ -1,0 +1,7 @@
+sample,fastq_1,fastq_2,strandedness
+control_rep1,gs://rnaseq-pipeline-493519-data/fastq/SRR30403510_1.fastq.gz,gs://rnaseq-pipeline-493519-data/fastq/SRR30403510_2.fastq.gz,auto
+control_rep2,gs://rnaseq-pipeline-493519-data/fastq/SRR30403509_1.fastq.gz,gs://rnaseq-pipeline-493519-data/fastq/SRR30403509_2.fastq.gz,auto
+control_rep3,gs://rnaseq-pipeline-493519-data/fastq/SRR30403508_1.fastq.gz,gs://rnaseq-pipeline-493519-data/fastq/SRR30403508_2.fastq.gz,auto
+imatinib_rep1,gs://rnaseq-pipeline-493519-data/fastq/SRR30403504_1.fastq.gz,gs://rnaseq-pipeline-493519-data/fastq/SRR30403504_2.fastq.gz,auto
+imatinib_rep2,gs://rnaseq-pipeline-493519-data/fastq/SRR30403503_1.fastq.gz,gs://rnaseq-pipeline-493519-data/fastq/SRR30403503_2.fastq.gz,auto
+imatinib_rep3,gs://rnaseq-pipeline-493519-data/fastq/SRR30403502_1.fastq.gz,gs://rnaseq-pipeline-493519-data/fastq/SRR30403502_2.fastq.gz,auto
