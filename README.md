@@ -186,3 +186,59 @@ characterize that profile.
 JAK-STAT is also notable: despite BCR-ABL being a known activator of JAK-STAT
 signaling, the pathway shows near-zero activity change (z = +0.48), suggesting
 compensatory activation from other sources in K562 cells.
+
+## Pathway enrichment analysis (fgsea)
+
+**Script:** `analysis/fgsea_analysis.R`  
+**Tool:** fgsea with MSigDB Hallmark gene sets  
+**Ranked by:** DESeq2 Wald statistic
+
+### Key findings
+
+**Most strongly activated pathways:**
+
+| Pathway | NES | Interpretation |
+|---------|-----|----------------|
+| HEME_METABOLISM | +3.52 | Erythroid differentiation — dominant imatinib effect in K562 |
+| BILE_ACID_METABOLISM | +1.96 | Metabolic reprogramming |
+| KRAS_SIGNALING_DN | +1.95 | RAS pathway suppression (downregulated KRAS targets upregulated) |
+| HYPOXIA | +1.42 | Metabolic stress response |
+
+**Most strongly suppressed pathways:**
+
+| Pathway | NES | Interpretation |
+|---------|-----|----------------|
+| MYC_TARGETS_V1 | -2.73 | Proliferation — strongest suppressed signal, BCR-ABL drives MYC |
+| MYC_TARGETS_V2 | -2.49 | Proliferation |
+| UNFOLDED_PROTEIN_RESPONSE | -2.29 | ER stress pathway suppressed |
+| MTORC1_SIGNALING | -2.25 | mTOR pathway — downstream of PI3K/BCR-ABL |
+| IL6_JAK_STAT3_SIGNALING | -1.78 | JAK-STAT suppressed (contrast with PROGENy result) |
+
+### Interpretation
+
+The dominant transcriptional effect of imatinib in K562 cells is suppression
+of MYC-driven proliferation and activation of erythroid differentiation
+(HEME_METABOLISM NES = 3.52). This is consistent with BCR-ABL inhibition
+being the primary mechanism — BCR-ABL drives MYC expression, and inhibiting
+it collapses the MYC transcriptional program.
+
+The fgsea result for JAK-STAT (NES = -1.78, suppressed) differs from the
+PROGENy result (z = +0.48, near zero). The two tools use different gene sets
+and scoring methods, illustrating that pathway inference is tool-dependent —
+a point relevant to the companion selectivity paper's argument about
+definitional instability in kinase biology.
+
+### Connection to binding selectivity
+
+The transcriptional response is highly concentrated: HEME_METABOLISM (NES 3.52)
+dominates activated pathways, and MYC_TARGETS (NES -2.73) dominates suppressed
+pathways. This concentration is consistent with imatinib's high binding
+selectivity for BCR-ABL in the Klaeger dataset — a selective compound produces
+a focused transcriptional response.
+
+However, EGFR pathway suppression (PROGENy z = -13.4) in the absence of
+EGFR binding demonstrates that binding-based selectivity definitions do not
+fully predict pathway-level transcriptional specificity. Pathway crosstalk
+and shared downstream targets mean a compound's transcriptional footprint
+is broader than its binding profile alone would suggest — a limitation of
+any binding-based selectivity framework, regardless of which definition is used.
