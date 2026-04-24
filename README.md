@@ -138,3 +138,51 @@ Rscript analysis/deseq2_analysis.R
 - Comparison with dasatinib transcriptional response (broader selectivity
   profile, predicted broader transcriptional footprint)
 
+
+## Kinase activity inference (PROGENy)
+
+**Script:** `analysis/progeny_analysis.R`  
+**Tool:** PROGENy (Pathway RespOnsive GENes)  
+**Permutations:** 1000  
+**Top genes per pathway:** 500
+
+PROGENy infers upstream pathway activity from the DESeq2 gene-level statistics,
+using a database of pathway-responsive genes derived from perturbation experiments.
+
+### Pathway z-scores
+
+| Pathway | Z-score | Interpretation |
+|---------|---------|----------------|
+| MAPK | -18.84 | Strongly suppressed — primary BCR-ABL downstream pathway |
+| PI3K | -14.62 | Strongly suppressed — primary BCR-ABL downstream pathway |
+| EGFR | -13.44 | Strongly suppressed — imatinib does not bind EGFR |
+| Estrogen | -7.97 | Suppressed |
+| TGFb | -5.21 | Suppressed |
+| VEGF | -1.55 | Weakly suppressed |
+| WNT | -1.28 | Weakly suppressed |
+| NFkB | -1.13 | Weakly suppressed |
+| Androgen | -1.01 | Weakly suppressed |
+| TNFa | +0.08 | Unchanged |
+| JAK-STAT | +0.48 | Unchanged (expected suppression not observed) |
+| p53 | +2.46 | Activated — BCR-ABL inhibition relieves p53 suppression |
+| Trail | +3.69 | Activated — apoptotic signaling |
+| Hypoxia | +4.30 | Strongly activated |
+
+### Connection to binding selectivity
+
+Imatinib's primary targets in the Klaeger chemoproteomic dataset are BCR-ABL,
+c-KIT, and PDGFR. MAPK and PI3K suppression (z = -18.8 and -14.6) are
+consistent with BCR-ABL inhibition. However, the EGFR pathway is equally
+suppressed (z = -13.4) despite imatinib having no meaningful binding affinity
+for EGFR in the Klaeger dataset.
+
+This illustrates a key finding from the companion selectivity paper: binding
+selectivity profiles do not map cleanly onto transcriptional pathway effects.
+Pathway crosstalk, shared downstream targets, and compensatory signaling mean
+that a compound's transcriptional footprint is broader than its binding profile
+would predict — regardless of which selectivity definition is used to
+characterize that profile.
+
+JAK-STAT is also notable: despite BCR-ABL being a known activator of JAK-STAT
+signaling, the pathway shows near-zero activity change (z = +0.48), suggesting
+compensatory activation from other sources in K562 cells.
