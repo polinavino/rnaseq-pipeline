@@ -1,0 +1,23 @@
+# Nextflow
+.nextflow/
+.nextflow.log*
+work/
+results/
+
+# Large data files
+*.fastq
+*.fastq.gz
+*.bam
+*.bai
+*.sam
+
+# R temporary files
+*.Rhistory
+*.RData
+*.Rproj.user/
+
+# System files
+.DS_Store
+
+# Credentials
+*-key.json
