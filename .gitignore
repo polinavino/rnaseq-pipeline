@@ -2,7 +2,14 @@
 .nextflow/
 .nextflow.log*
 work/
-results/
+
+# Pipeline results (large, reproducible from pipeline)
+results/fastqc/
+results/trimgalore/
+results/multiqc/
+results/test/
+results/pipeline_info/
+null/
 
 # Large data files
 *.fastq
@@ -14,7 +21,6 @@ results/
 # R temporary files
 *.Rhistory
 *.RData
-*.Rproj.user/
 
 # System files
 .DS_Store
