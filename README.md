@@ -299,3 +299,14 @@ the definitional instability we identified in binding-based selectivity metrics
 reflects a deeper issue — binding selectivity and transcriptional specificity
 are related but distinct biological concepts that require different measurement
 frameworks.
+
+## Next steps
+
+* Cross-compound comparison — find RNA-seq data for dasatinib (broader
+  selectivity profile than imatinib) and test whether transcriptional breadth
+  scales with binding promiscuity
+* Formal quantification of transcriptional specificity — develop a
+  transcriptional analog of the binding selectivity metrics from the companion
+  paper and compare them
+* Extension to other CML drugs — ponatinib, bosutinib, nilotinib all have
+  Klaeger binding profiles and published RNA-seq data exists for some
