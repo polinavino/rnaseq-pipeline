@@ -224,9 +224,13 @@ it collapses the MYC transcriptional program.
 
 The fgsea result for JAK-STAT (NES = -1.78, suppressed) differs from the
 PROGENy result (z = +0.48, near zero). The two tools use different gene sets
-and scoring methods, illustrating that pathway inference is tool-dependent —
-a point relevant to the companion selectivity paper's argument about
-definitional instability in kinase biology.
+and scoring methods, so they can disagree even on the same data. This is a
+distinct phenomenon from the definitional instability analyzed in the companion
+selectivity paper — here the disagreement arises from different statistical
+frameworks applied to the same question, rather than different operationalizations
+of the same concept from the same data. Both are instances of the broader problem
+that biological conclusions can be sensitive to methodological choices, motivating
+the kind of formal analysis the selectivity paper pursues.
 
 ### Connection to binding selectivity
 
