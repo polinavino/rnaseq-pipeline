@@ -310,3 +310,36 @@ frameworks.
   paper and compare them
 * Extension to other CML drugs — ponatinib, bosutinib, nilotinib all have
   Klaeger binding profiles and published RNA-seq data exists for some
+
+## Transcriptional specificity analysis
+
+**Script:** `analysis/transcriptional_specificity/specificity_analysis.py`  
+**Full writeup:** `analysis/transcriptional_specificity/README.md`
+
+This analysis applies the binding selectivity desiderata from the companion
+paper to PROGENy pathway z-scores, testing whether the same definitional
+instabilities appear when selectivity-type measures are computed over
+transcriptional rather than binding data.
+
+### Scores
+
+| Metric | Value | Note |
+|--------|-------|------|
+| S-score analog | 0.571 | 8/14 pathways with \|z\| > 2 |
+| Entropy analog | 3.054 bits | Moderate specificity |
+| Gini analog | 0.552 | Moderate concentration |
+| Ratio analog | 1.288 | MAPK 29% stronger than PI3K |
+
+### Desiderata results
+
+D1 violated by S-score (threshold-sensitive), D3 violated by Gini (decreases
+when weak pathway added — opposite to entropy), D3 violated by ratio
+(insensitive to off-target pathways). D4 passes for all definitions.
+
+### Significance
+
+The same failure modes identified in binding-based selectivity metrics appear
+in transcriptional pathway data. This suggests the desiderata violations are
+properties of the mathematical definitions, not artifacts of binding
+measurement. The companion paper's framework generalizes beyond binding
+selectivity to any domain where specificity is measured over a response profile.
