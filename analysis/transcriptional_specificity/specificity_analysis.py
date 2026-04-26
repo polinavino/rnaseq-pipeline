@@ -5,23 +5,12 @@ import matplotlib.gridspec as gridspec
 from scipy.stats import pearsonr, spearmanr
 
 # ── 1. PROGENy z-scores ───────────────────────────────────────────────────────
-# From progeny_analysis.R output
-progeny = pd.Series({
-    'MAPK':     -18.837,
-    'PI3K':     -14.621,
-    'EGFR':     -13.437,
-    'Estrogen':  -7.970,
-    'TGFb':      -5.208,
-    'VEGF':      -1.546,
-    'WNT':       -1.284,
-    'NFkB':      -1.134,
-    'Androgen':  -1.007,
-    'TNFa':       0.084,
-    'JAK_STAT':   0.481,
-    'p53':        2.463,
-    'Trail':      3.687,
-    'Hypoxia':    4.299,
-})
+# Read from progeny_analysis.R output
+progeny_df = pd.read_csv('analysis/progeny_scores.csv')
+progeny = pd.Series(
+    progeny_df['z_score'].values,
+    index=progeny_df['pathway'].values
+)
 
 # Use absolute values — we care about magnitude of perturbation, not direction
 # (both strongly suppressed and strongly activated = specific response)
