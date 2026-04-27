@@ -89,6 +89,18 @@ erythroid differentiation and away from proliferation.
 | `analysis/volcano.png` | Volcano plot |
 | `analysis/heatmap_top50.png` | Heatmap of top 50 DEGs |
 
+## Dependencies
+
+The binding affinity analyses (`binding_vs_transcription.py`,
+`kinase_substrate_analysis.py`, `transcriptional_specificity/specificity_analysis.py`)
+require the Klaeger et al. chemoproteomic dataset, available from the companion
+repository at https://github.com/polinavino/kinase-selectivity-definitions
+(file: `klaeger_matrix.csv`). Set the path via environment variable:
+
+```bash
+export KLAEGER_PATH=/path/to/klaeger_matrix.csv
+```
+
 ## Reproduction
 
 ### Requirements
@@ -252,53 +264,32 @@ any binding-based selectivity framework, regardless of which definition is used.
 **Script:** `analysis/binding_vs_transcription.py`  
 **Data:** Klaeger et al. chemoproteomic dataset (343 kinases) + DESeq2 results
 
-This analysis directly connects the companion kinase selectivity paper to the
-RNA-seq results. For each of the 343 kinases in imatinib's binding profile
-(Klaeger dataset), we asked: does binding affinity predict transcriptional
-change in imatinib-treated K562 cells?
+For each of the 343 kinases in imatinib's binding profile (Klaeger dataset),
+we asked whether binding affinity predicts transcriptional change of that
+kinase's own gene, and separately whether it predicts the mean transcriptional
+change of that kinase's known substrates (PhosphoSitePlus via Harmonizome).
 
-### Result
+### Results
 
-**Pearson r = -0.077, p = 0.19** — binding affinity does not predict
-transcriptional change at the kinase gene level.
+**Kinase gene expression:** Pearson r = -0.077, p = 0.19 — no correlation.
+Expected, since kinase inhibitors act post-translationally on the protein, not
+on gene transcription.
 
-### Key observations
-
-| Kinase | pKd | log2FC | Significant | Interpretation |
-|--------|-----|--------|-------------|----------------|
-| BCR | 8.19 | -0.19 | Yes | Strongest binder, minimal expression change |
-| GRB2 | 7.79 | -0.29 | Yes | Strong binder, small change |
-| NQO2 | 7.39 | -1.99 | Yes | Strong binder, large downregulation |
-| ABL1 | 6.97 | -0.04 | No | Primary oncogenic target, unchanged expression |
-| PAK6 | 5.00 | +1.71 | Yes | Weak binder, large upregulation |
-| KIT | 5.00 | -0.02 | No | Known off-target, unchanged |
-
-Of 343 imatinib targets, 294 were detected in the RNA-seq data.
-177 were significantly differentially expressed (padj < 0.05), but their
-direction and magnitude of change was not predicted by binding affinity.
+**Substrate expression (kinase-substrate analysis):** Spearman r = -0.050,
+p = 0.84 for mean substrate log2FC; r = -0.448, p = 0.054 for mean |log2FC|.
+Neither is significant. Only 19 of 50 kinases had sufficient substrate
+annotation, and most clustered at pKd = 5.0 (the Klaeger detection threshold),
+severely limiting the dynamic range of the test.
 
 ### Interpretation
 
-This result is expected and biologically meaningful. Kinase inhibitors work
-post-translationally — imatinib binds to the ABL1 *protein* and blocks its
-kinase activity. This does not directly change ABL1 *gene expression*. The
-transcriptional changes we observe are downstream consequences of kinase
-inhibition, mediated through signaling cascades, transcription factor activity,
-and gene regulatory networks — not direct effects on target gene expression.
-
-This finding clarifies what binding-based selectivity metrics measure: the
-affinity and breadth of protein-level target engagement. They do not, and
-cannot, directly predict transcriptional specificity. A compound ranked as
-highly selective by S-score, entropy, Gini, or ratio-based definitions is
-selective at the binding level — but its transcriptional footprint depends
-on the downstream signaling architecture of the cell, which is not captured
-by any binding-based selectivity definition.
-
-This is a substantive extension of the companion selectivity paper's argument:
-the definitional instability we identified in binding-based selectivity metrics
-reflects a deeper issue — binding selectivity and transcriptional specificity
-are related but distinct biological concepts that require different measurement
-frameworks.
+These are null results at the gene and substrate level. They confirm that
+binding-based selectivity metrics — whatever definition is used — measure
+protein-level target engagement, not transcriptional specificity. The
+transcriptional response to kinase inhibition is mediated through signaling
+cascades and transcription factors, not through direct regulation of target
+gene expression. The appropriate level of analysis is pathway-level, as shown
+by the PROGENy and fgsea results above.
 
 ## Next steps
 
@@ -395,33 +386,24 @@ has a biological interpretation: the most variable genes may respond to imatinib
 inconsistently across replicates, with some cells responding strongly and others
 not. Bulk RNA-seq, which averages across millions of cells, cannot resolve this.
 
-### Connection to previous results and Kaern's framework
+### Connection to Kaern's framework
 
-Three threads connect this analysis to the rest of the project:
+The results here are exploratory and should be interpreted cautiously given the
+limitations of bulk RNA-seq for testing noise-driven resistance predictions.
 
-**From the fgsea results:** The dominant transcriptional response to imatinib
-is erythroid differentiation (HEME_METABOLISM NES = 3.52). The increase in
-expression variability under imatinib (Q2) suggests this differentiation is
-heterogeneous — cells are transitioning at different rates, consistent with the
-stochastic phenotypic switching models from Kaern's lab. A single bulk RNA-seq
-measurement averages over this heterogeneity and reports the mean trajectory,
-but the increased CV tells us the population is becoming more dispersed, not
-less.
+The increase in expression variability under imatinib (Q2) is consistent with
+heterogeneous differentiation — cells transitioning toward erythroid fate at
+different rates, as seen in the fgsea HEME_METABOLISM result. However, the
+effect size is small (+0.022 mean CV change) and bulk RNA-seq cannot distinguish
+true cell-to-cell variability from technical replicate noise. The weak positive
+correlation between control CV and |log2FC| (r=0.231) is real but modest and
+not surprising. The depletion of high-CV genes among DEGs is a statistical
+artifact of noisy expression being harder to call as significantly DE.
 
-**From the binding vs transcription analysis:** We showed that binding affinity
-does not predict transcriptional change at the gene level (r = -0.077). Kaern's
-framework adds a complementary explanation: even for genes that imatinib's
-targets regulate, the transcriptional response is stochastic and cell-specific.
-The population-average fold change we measure is the net effect of heterogeneous
-responses, not a deterministic signal from a specific kinase-gene relationship.
-
-**From the selectivity paper:** The desiderata framework we proposed for binding
-selectivity assumes a deterministic relationship between binding affinity and
-biological effect. The noise-driven resistance results suggest this assumption
-may be systematically violated — if cells respond stochastically to drug
-treatment regardless of the compound's binding selectivity, then selectivity
-metrics (however defined) may have limited predictive power for population-level
-outcomes. This is a substantive limitation worth addressing in Paper 2.
+These analyses motivate single-cell RNA-seq follow-up, which would be needed to
+properly test Kaern's predictions about subpopulation-level responses to
+imatinib. The SRP562191 dataset (dasatinib-treated K562 Multiome) offers a
+partial opportunity, though with only 2 replicates.
 
 ### Limitation and next steps
 

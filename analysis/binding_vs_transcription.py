@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -5,7 +6,7 @@ import matplotlib.patches as mpatches
 from scipy import stats
 
 # ── 1. Load Klaeger binding data for imatinib ─────────────────────────────────
-klaeger = pd.read_csv('/Users/polina/Documents/BioInfStuff/selectivity/klaeger_matrix.csv', index_col=0)
+klaeger = pd.read_csv(os.environ.get("KLAEGER_PATH", "/Users/polina/Documents/BioInfStuff/selectivity/klaeger_matrix.csv"), index_col=0)
 
 imatinib_binding = klaeger.loc['Imatinib'].dropna().sort_values(ascending=False)
 print(f"Imatinib binds {len(imatinib_binding)} kinases")
