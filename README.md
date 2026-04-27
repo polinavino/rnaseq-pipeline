@@ -343,3 +343,93 @@ in transcriptional pathway data. This suggests the desiderata violations are
 properties of the mathematical definitions, not artifacts of binding
 measurement. The companion paper's framework generalizes beyond binding
 selectivity to any domain where specificity is measured over a response profile.
+
+## Expression variability analysis
+
+**Script:** `analysis/expression_variability.py`  
+**Motivated by:** Kaern et al. — noise-driven drug resistance framework
+
+This analysis asks whether expression variability across biological replicates
+predicts the transcriptional response to imatinib, connecting our bulk RNA-seq
+results to the theoretical framework developed by Kaern and colleagues on
+stochastic gene expression and non-genetic drug resistance.
+
+### Background
+
+Kaern's lab has shown mathematically and experimentally that genetically
+identical cells can develop drug resistance through stochastic variability in
+gene expression — cells that happen to express a resistance gene at high levels
+when drug is applied survive, without any genetic mutation. This predicts that
+genes with high expression variability in untreated cells should be enriched
+among genes that respond to drug treatment, since variable genes are more likely
+to have subpopulations already primed for survival or death.
+
+### Results
+
+**Q1 — Does control variability predict transcriptional response?**
+
+Spearman r = 0.231 (p ≈ 0) between control coefficient of variation (CV) and
+|log2FC| in imatinib treatment. There is a weak but highly significant positive
+correlation — more variable genes tend to show larger transcriptional responses.
+This is consistent with Kaern's framework: noisy genes are more likely to be
+selected for or against by drug treatment. The effect is modest, suggesting
+noise is one factor among many.
+
+**Q2 — Does imatinib reduce expression variability?**
+
+Mean CV increases from 0.144 (control) to 0.165 (imatinib), a statistically
+significant increase (paired t-test p = 4e-75). This is the opposite of what
+a simple clonal selection model would predict — if imatinib were killing the
+most variable cells and leaving a uniform surviving population, CV should
+decrease. Instead, imatinib appears to increase transcriptional heterogeneity,
+consistent with cells being pushed toward erythroid differentiation at different
+rates. This aligns with the dominant fgsea finding (HEME_METABOLISM NES = 3.52)
+— differentiation is occurring but heterogeneously across the population.
+
+**Q3 — Are high-variability genes enriched among DE genes?**
+
+High-CV genes (top 10% by control CV) are actually *depleted* among significant
+DEGs — 47.0% vs 61.8% overall. This is a statistical artifact: high CV genes
+have noisy expression that makes consistent DE calling difficult. But it also
+has a biological interpretation: the most variable genes may respond to imatinib
+inconsistently across replicates, with some cells responding strongly and others
+not. Bulk RNA-seq, which averages across millions of cells, cannot resolve this.
+
+### Connection to previous results and Kaern's framework
+
+Three threads connect this analysis to the rest of the project:
+
+**From the fgsea results:** The dominant transcriptional response to imatinib
+is erythroid differentiation (HEME_METABOLISM NES = 3.52). The increase in
+expression variability under imatinib (Q2) suggests this differentiation is
+heterogeneous — cells are transitioning at different rates, consistent with the
+stochastic phenotypic switching models from Kaern's lab. A single bulk RNA-seq
+measurement averages over this heterogeneity and reports the mean trajectory,
+but the increased CV tells us the population is becoming more dispersed, not
+less.
+
+**From the binding vs transcription analysis:** We showed that binding affinity
+does not predict transcriptional change at the gene level (r = -0.077). Kaern's
+framework adds a complementary explanation: even for genes that imatinib's
+targets regulate, the transcriptional response is stochastic and cell-specific.
+The population-average fold change we measure is the net effect of heterogeneous
+responses, not a deterministic signal from a specific kinase-gene relationship.
+
+**From the selectivity paper:** The desiderata framework we proposed for binding
+selectivity assumes a deterministic relationship between binding affinity and
+biological effect. The noise-driven resistance results suggest this assumption
+may be systematically violated — if cells respond stochastically to drug
+treatment regardless of the compound's binding selectivity, then selectivity
+metrics (however defined) may have limited predictive power for population-level
+outcomes. This is a substantive limitation worth addressing in Paper 2.
+
+### Limitation and next steps
+
+This analysis uses replicate-to-replicate variability as a proxy for
+cell-to-cell variability. Each replicate is an average of millions of cells,
+so our CV reflects biological variation between experimental replicates plus
+technical noise, not true single-cell heterogeneity. Single-cell RNA-seq of
+imatinib-treated K562 cells would be needed to directly test Kaern's predictions
+about subpopulation-level responses. The SRP562191 dataset (dasatinib-treated
+K562 Multiome, 2 replicates) offers a partial opportunity for comparison,
+though with fewer replicates than ideal.
