@@ -141,16 +141,6 @@ nextflow run nf-core/rnaseq \
 Rscript analysis/deseq2_analysis.R
 ```
 
-## Next steps
-
-- Kinase activity inference using PROGENy
-- Pathway enrichment analysis (fgsea)
-- Cross-reference inferred kinase activities with imatinib binding profile
-  from the Klaeger dataset
-- Comparison with dasatinib transcriptional response (broader selectivity
-  profile, predicted broader transcriptional footprint)
-
-
 ## Kinase activity inference (PROGENy)
 
 **Script:** `analysis/progeny_analysis.R`  
@@ -290,17 +280,6 @@ transcriptional response to kinase inhibition is mediated through signaling
 cascades and transcription factors, not through direct regulation of target
 gene expression. The appropriate level of analysis is pathway-level, as shown
 by the PROGENy and fgsea results above.
-
-## Next steps
-
-* Cross-compound comparison — find RNA-seq data for dasatinib (broader
-  selectivity profile than imatinib) and test whether transcriptional breadth
-  scales with binding promiscuity
-* Formal quantification of transcriptional specificity — develop a
-  transcriptional analog of the binding selectivity metrics from the companion
-  paper and compare them
-* Extension to other CML drugs — ponatinib, bosutinib, nilotinib all have
-  Klaeger binding profiles and published RNA-seq data exists for some
 
 ## Transcriptional specificity analysis
 
