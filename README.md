@@ -415,3 +415,70 @@ imatinib-treated K562 cells would be needed to directly test Kaern's predictions
 about subpopulation-level responses. The SRP562191 dataset (dasatinib-treated
 K562 Multiome, 2 replicates) offers a partial opportunity for comparison,
 though with fewer replicates than ideal.
+
+## Nilotinib RNA-seq analysis
+
+**Dataset:** SRP594028 — K562 Mock+DMSO (control) vs Mock+Nilotinib, 3 replicates each  
+**Pipeline:** Same nf-core/rnaseq configuration as imatinib (GCP, Salmon pseudoalignment)  
+**Script:** `analysis/deseq2_nilotinib.R`, `analysis/progeny_nilotinib.R`
+
+Nilotinib is a second-generation BCR-ABL inhibitor, more potent and more
+BCR-ABL-selective than imatinib by binding affinity (Klaeger dataset).
+This experiment allows direct comparison of two drugs with different binding
+selectivity profiles but the same nominal target in the same cell line.
+
+### DESeq2 results
+
+- Genes tested: 15,451
+- Significant DEGs (padj < 0.05): 9,478
+- Upregulated: 1,881 | Downregulated: 1,833
+
+Known BCR-ABL response genes all show the expected direction. Erythroid
+differentiation markers (HBZ log2FC=+5.55, ALAS2=+4.63, HBG2=+3.00) are
+more strongly upregulated by nilotinib than imatinib, consistent with
+nilotinib's greater BCR-ABL potency.
+
+## Imatinib vs Nilotinib comparison
+
+**Script:** `analysis/compare_imatinib_nilotinib.py`  
+**Output:** `analysis/imatinib_vs_nilotinib.png`, `analysis/specificity_comparison.csv`
+
+### PROGENy pathway comparison
+
+| Pathway | Imatinib z | Nilotinib z | Note |
+|---------|-----------|------------|------|
+| MAPK | -18.84 | -11.44 | Imatinib suppresses more strongly |
+| PI3K | -14.62 | -5.02 | Imatinib suppresses more strongly |
+| EGFR | -13.44 | -4.19 | Imatinib suppresses more strongly |
+| Hypoxia | +4.30 | -4.23 | Opposite directions |
+| JAK-STAT | +0.48 | +3.85 | Nilotinib activates more strongly |
+| p53 | +2.46 | -0.07 | Opposite directions |
+| TGFb | -5.21 | -5.27 | Nearly identical |
+
+### Transcriptional specificity comparison
+
+| Metric | Imatinib | Nilotinib | Agreement |
+|--------|----------|-----------|-----------|
+| S-score | 0.571 | 0.786 | Nilotinib less specific |
+| Entropy | 3.054 | 3.456 | Nilotinib less specific |
+| Gini | 0.552 | 0.371 | Nilotinib less specific |
+| Ratio | 1.288 | 1.558 | Nilotinib more specific |
+
+Three of four definitions agree: nilotinib produces a broader transcriptional
+response than imatinib. Only the ratio definition disagrees — the same D3
+violation pattern identified in the companion selectivity paper.
+
+### Key finding
+
+Nilotinib is more potent and more BCR-ABL-selective than imatinib at the
+binding level (Klaeger dataset), yet produces a broader transcriptional
+response by three of four specificity definitions. MAPK and PI3K suppression
+are weaker for nilotinib despite stronger BCR-ABL inhibition. Hypoxia and
+p53 pathways show opposite activation directions between the two drugs.
+
+This is direct empirical evidence that binding selectivity does not predict
+transcriptional specificity. A more BCR-ABL-selective compound does not
+necessarily produce a more transcriptionally specific response. The
+relationship between binding profile and transcriptional footprint is
+mediated by signaling network architecture in ways not captured by any
+binding-based selectivity definition.
